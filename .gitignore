@@ -1,0 +1,33 @@
+# Dart & Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+
+# VS Code
+.vscode/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Android
+android/.gradle/
+android/captures/
+
+# iOS
+ios/Flutter/
+ios/.symlinks/
+ios/Pods/
+ios/Runner.xcworkspace/
+
+# macOS
+macos/Flutter/
+
+# Misc
+*.log
+*.lock
