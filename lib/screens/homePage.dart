@@ -7,12 +7,32 @@ class homePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 212, 35, 0),
+        // backgroundColor: ,
         title: const Text(
           'alvvv',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontSize: 35),
+          style: TextStyle(color: Color.fromARGB(107, 11, 102, 230), fontSize: 30),
         ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.hub),
+            label: 'Control',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.analytics),
+            label: 'Data',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.exit_to_app),
+            label: 'exit',
+          ), //
+        ],
       ),
       body: Container(),
     );
