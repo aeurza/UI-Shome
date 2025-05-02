@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shome/screens/homePage.dart';
+import 'package:shome/screens/login.dart';
 
 void main() => runApp(const MyApp());
 
@@ -11,8 +12,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Smart Home',
-      // home: const Login(),
-      home: const homePage(),
+      home: const Login(),
+      // home: const homePage(),
     );
   }
 }
