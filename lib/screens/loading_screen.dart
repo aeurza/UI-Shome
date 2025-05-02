@@ -13,7 +13,7 @@ class LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 5), () {
       Navigator.of(
         context,
       ).pushReplacement(MaterialPageRoute(builder: (context) => const Login()));
@@ -22,18 +22,24 @@ class LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Replace with your logo image
-            Image.asset('assets/images/login.jpg', width: 200, height: 200),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(),
-            const SizedBox(height: 10),
-            const Text('Loading...'),
-          ],
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/backgrpund.jpg'),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text('Loading...'),
+            ],
+          ),
         ),
       ),
     );

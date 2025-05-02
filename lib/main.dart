@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Smart Home',
-      // home: const LoadingScreen(),
-      home: const homePage(),
+      home: const LoadingScreen(),
+      // home: const homePage(),
     );
   }
 }

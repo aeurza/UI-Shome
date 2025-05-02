@@ -11,9 +11,9 @@ class Login extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/esta.jpg'),
-            fit: BoxFit.contain,
+          image: const DecorationImage(
+            image: AssetImage('assets/images/backgrpund.jpg'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
