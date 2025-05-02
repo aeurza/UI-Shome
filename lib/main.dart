@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:shome/screens/homePage.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shome/screens/login.dart';
 
 void main() => runApp(const MyApp());
@@ -12,8 +13,47 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Smart Home',
-      home: const Login(),
+      home: const LoadingScreen(),
       // home: const homePage(),
+    );
+  }
+}
+
+class LoadingScreen extends StatefulWidget {
+  const LoadingScreen({super.key});
+
+  @override
+  LoadingScreenState createState() => LoadingScreenState();
+}
+
+class LoadingScreenState extends State<LoadingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Login()),
+        );
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.asset('assets/images/esta.jpg', width: 200, height: 200),
+            const SizedBox(height: 10),
+            const CircularProgressIndicator(),
+          ],
+        ),
+      ),
     );
   }
 }
