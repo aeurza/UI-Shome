@@ -38,8 +38,8 @@ class _homePageState extends State<homePage> {
     if (_exitTapCount < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Pulsa ${3 - _exitTapCount} vez más para salir'),
-          duration: const Duration(seconds: 1),
+          content: Text('Pulsa ${2 - _exitTapCount} vez más para salir'),
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -73,6 +73,7 @@ class _homePageState extends State<homePage> {
         ),
       ),
       bottomNavigationBar: NavigationBar(
+        indicatorColor: const Color.fromARGB(255, 15, 225, 208),
         selectedIndex: _selectedIndex,
         onDestinationSelected: (int index) {
           if (index == 3) {
