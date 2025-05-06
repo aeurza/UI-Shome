@@ -18,14 +18,14 @@ class _homePageState extends State<homePage> {
     const Center(
       child: Text('Página de Inicio', style: TextStyle(fontSize: 24)),
     ),
-    Container(), // Placeholder para Control
+    const ControlScreen(), // Control screen
     const Center(
       child: Text('Página de Datos', style: TextStyle(fontSize: 24)),
     ),
     Container(), // Placeholder para Exit
   ];
 
-  int _exitTapCount = 0;
+  int _exitTapCount = 1;
   Timer? _exitTapTimer;
 
   void _handleExitTap() {
@@ -75,12 +75,7 @@ class _homePageState extends State<homePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (int index) {
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ControlScreen()),
-            );
-          } else if (index == 3) {
+          if (index == 3) {
             // Tap para Exit se maneja por GestureDetector
           } else {
             setState(() {

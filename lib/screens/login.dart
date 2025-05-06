@@ -22,7 +22,7 @@ class _LoginState extends State<Login> {
   }
 
   void _performLogin() {
-    if (ipController.text == '1.1.1.1') {
+    if (ipController.text == '') {
       ipAddress = ipController.text;
       Navigator.pushReplacement(
         context,
