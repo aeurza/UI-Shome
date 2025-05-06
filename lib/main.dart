@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shome/screens/homePage.dart';
+import 'package:shome/screens/control.dart';
 import 'package:shome/screens/loading_screen.dart';
 import 'package:shome/screens/login.dart';
 
@@ -16,7 +15,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Smart Home',
       home: const LoadingScreen(),
-      // home: const homePage(),
     );
   }
 }
