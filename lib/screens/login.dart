@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Para RawKeyEvent
+import 'package:flutter/services.dart';
 import 'homePage.dart';
 
 class Login extends StatefulWidget {
@@ -12,7 +12,12 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController ipController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  String ipAddress = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.requestFocus(); // para capturar la tecla Enter
+  }
 
   void _handleKeyEvent(RawKeyEvent event) {
     if (event is RawKeyDownEvent &&
@@ -22,16 +27,22 @@ class _LoginState extends State<Login> {
   }
 
   void _performLogin() {
-    if (ipController.text == '') {
-      ipAddress = ipController.text;
+    if (ipController.text.trim() == '') {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const homePage()),
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 500),
+          pageBuilder:
+              (context, animation, secondaryAnimation) => const homePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       );
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Ingresa la ip Correcta')));
+      ).showSnackBar(const SnackBar(content: Text('IP incorrecta...')));
     }
   }
 
@@ -45,48 +56,50 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Opacity(
-            opacity: 0.5,
-            child: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/background.jpg'),
-                  fit: BoxFit.fill,
+      body: RawKeyboardListener(
+        focusNode: _focusNode,
+        onKey: _handleKeyEvent,
+        child: Stack(
+          children: [
+            // Imagen de fondo
+            Opacity(
+              opacity: 0.7,
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/bg.jpg'),
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ),
             ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Welcome to Smart Home',
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Color.fromARGB(255, 10, 120, 194),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 35),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 10, 120, 194),
+            // Contenido principal
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Welcome to Smart Home',
+                    style: TextStyle(
+                      fontSize: 30,
+                      color: Color.fromARGB(255, 10, 120, 194),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  child: RawKeyboardListener(
-                    focusNode: _focusNode,
-                    onKey: _handleKeyEvent,
+                  const SizedBox(height: 35),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Color.fromARGB(255, 10, 120, 194),
+                      ),
+                    ),
                     child: TextField(
                       controller: ipController,
                       decoration: const InputDecoration(
-                        hintText: 'Ingresa la ip del dispositivo.',
+                        hintText: 'Ingresa la IP del dispositivo.',
                         border: InputBorder.none,
                       ),
                       keyboardType: TextInputType.number,
@@ -95,16 +108,16 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _performLogin,
-                  child: const Text('Ingresar'),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _performLogin,
+                    child: const Text('Ingresar'),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

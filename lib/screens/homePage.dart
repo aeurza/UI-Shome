@@ -18,7 +18,7 @@ class _homePageState extends State<homePage> {
     const Center(
       child: Text('Página de Inicio', style: TextStyle(fontSize: 24)),
     ),
-    const ControlScreen(), // Control screen
+    const ControlScreen(),
     const Center(
       child: Text('Página de Datos', style: TextStyle(fontSize: 24)),
     ),
@@ -38,8 +38,8 @@ class _homePageState extends State<homePage> {
     if (_exitTapCount < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Pulsa ${2 - _exitTapCount} vez más para salir'),
-          duration: const Duration(seconds: 3),
+          content: Text('Pulsa ${3 - _exitTapCount} vez más para salir'),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -54,7 +54,7 @@ class _homePageState extends State<homePage> {
   }
 
   void _resetExitTap() {
-    _exitTapCount = 0;
+    _exitTapCount = 1;
     _exitTapTimer?.cancel();
   }
 
@@ -71,13 +71,31 @@ class _homePageState extends State<homePage> {
             ),
           ),
         ),
+        backgroundColor: Colors.transparent,
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Opacity(
+            opacity: 0.7,
+            child: Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
+          ),
+          Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: _pages[_selectedIndex],
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         indicatorColor: const Color.fromARGB(255, 15, 225, 208),
         selectedIndex: _selectedIndex,
         onDestinationSelected: (int index) {
           if (index == 3) {
-            // Tap para Exit se maneja por GestureDetector
+            _handleExitTap(); // Llamar a la lógica de salida
           } else {
             setState(() {
               _selectedIndex = index;
@@ -87,25 +105,11 @@ class _homePageState extends State<homePage> {
         destinations: [
           const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           const NavigationDestination(icon: Icon(Icons.hub), label: 'Control'),
-          const NavigationDestination(
-            icon: Icon(Icons.analytics),
-            label: 'Data',
-          ),
-          NavigationDestination(
-            icon: GestureDetector(
-              onTap: _handleExitTap,
-              child: const Icon(Icons.exit_to_app),
-            ),
-            label: 'Exit',
-          ),
+          const NavigationDestination(icon: Icon(Icons.analytics), label: 'Data'),
+          const NavigationDestination(icon: Icon(Icons.exit_to_app), label: 'Exit'),
         ],
       ),
-      body: Center(
-        child:
-            _selectedIndex < _pages.length
-                ? _pages[_selectedIndex]
-                : Container(),
-      ),
+      backgroundColor: Colors.transparent,
     );
   }
 }
