@@ -20,53 +20,73 @@ class DataScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Estadísticas')),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // SparkLine Chart
-            Container(
-              padding: const EdgeInsets.all(16),
-              height: 150,
-              child: SfSparkLineChart.custom(
-                dataCount: sparklineData.length,
-                xValueMapper: (int index) => index,
-                yValueMapper: (int index) => sparklineData[index],
-                marker: const SparkChartMarker(
-                  displayMode: SparkChartMarkerDisplayMode.all,
-                ),
-                labelDisplayMode: SparkChartLabelDisplayMode.all,
-                trackball: const SparkChartTrackball(
-                  activationMode: SparkChartActivationMode.tap,
-                ),
-              ),
+      // appBar: AppBar(title: Text('Estadísticas')),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.7,
+              child: Image.asset('assets/images/bg.jpg', fit: BoxFit.fill),
             ),
-
-            // Gráfico circular tipo donut
-            Container(
-              height: 300,
-              padding: const EdgeInsets.all(16),
-              child: SfCircularChart(
-                title: ChartTitle(text: 'Distribución porcentual'),
-                legend: Legend(isVisible: true),
-                tooltipBehavior: TooltipBehavior(enable: true),
-                series: <DoughnutSeries<_PieData, String>>[
-                  DoughnutSeries<_PieData, String>(
-                    radius: '80%',
-                    innerRadius: '60%',
-                    dataSource: pieData,
-                    xValueMapper: (_PieData data, _) => data.xData,
-                    yValueMapper: (_PieData data, _) => data.yData,
-                    dataLabelMapper: (_PieData data, _) => data.text,
-                    dataLabelSettings: const DataLabelSettings(isVisible: true),
-                    enableTooltip: true,
-                    animationDuration: 1000,
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // SparkLine Chart
+                Card(
+                  margin: const EdgeInsets.all(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 150,
+                      child: SfSparkLineChart(
+                        data: sparklineData,
+                        marker: const SparkChartMarker(
+                          displayMode: SparkChartMarkerDisplayMode.all,
+                        ),
+                        labelDisplayMode: SparkChartLabelDisplayMode.all,
+                        trackball: const SparkChartTrackball(
+                          activationMode: SparkChartActivationMode.tap,
+                        ),
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                ),
+
+                // Gráfico circular tipo donut
+                Card(
+                  margin: const EdgeInsets.all(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 300,
+                      child: SfCircularChart(
+                        title: ChartTitle(text: 'Distribución porcentual'),
+                        legend: Legend(isVisible: true),
+                        tooltipBehavior: TooltipBehavior(enable: true),
+                        series: <DoughnutSeries<_PieData, String>>[
+                          DoughnutSeries<_PieData, String>(
+                            radius: '80%',
+                            innerRadius: '60%',
+                            dataSource: pieData,
+                            xValueMapper: (_PieData data, _) => data.xData,
+                            yValueMapper: (_PieData data, _) => data.yData,
+                            dataLabelMapper: (_PieData data, _) => data.text,
+                            dataLabelSettings: const DataLabelSettings(
+                              isVisible: true,
+                            ),
+                            enableTooltip: true,
+                            animationDuration: 1000,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
