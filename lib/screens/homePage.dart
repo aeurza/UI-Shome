@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shome/screens/control.dart';
 import 'package:shome/screens/login.dart';
 import 'dart:async';
+import 'package:shome/screens/data.dart';
 
 class homePage extends StatefulWidget {
   const homePage({super.key});
@@ -19,9 +20,7 @@ class _homePageState extends State<homePage> {
       child: Text('Página de Inicio', style: TextStyle(fontSize: 24)),
     ),
     const ControlScreen(),
-    const Center(
-      child: Text('Página de Datos', style: TextStyle(fontSize: 24)),
-    ),
+    const DataScreen(),
     Container(), // Placeholder para Exit
   ];
 
@@ -83,8 +82,9 @@ class _homePageState extends State<homePage> {
           Center(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) =>
-                  FadeTransition(opacity: animation, child: child),
+              transitionBuilder:
+                  (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
               child: _pages[_selectedIndex],
             ),
           ),
@@ -105,8 +105,14 @@ class _homePageState extends State<homePage> {
         destinations: [
           const NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           const NavigationDestination(icon: Icon(Icons.hub), label: 'Control'),
-          const NavigationDestination(icon: Icon(Icons.analytics), label: 'Data'),
-          const NavigationDestination(icon: Icon(Icons.exit_to_app), label: 'Exit'),
+          const NavigationDestination(
+            icon: Icon(Icons.analytics),
+            label: 'Data',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.exit_to_app),
+            label: 'Exit',
+          ),
         ],
       ),
       backgroundColor: Colors.transparent,

@@ -56,6 +56,12 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "intl",
+      "rootUri": "file:///home/user/.pub-cache/hosted/pub.dev/intl-0.20.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///home/user/.pub-cache/hosted/pub.dev/leak_tracker-10.0.8",
       "packageUri": "lib/",
@@ -128,6 +134,18 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "syncfusion_flutter_charts",
+      "rootUri": "file:///home/user/.pub-cache/hosted/pub.dev/syncfusion_flutter_charts-29.1.41",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
+      "name": "syncfusion_flutter_core",
+      "rootUri": "file:///home/user/.pub-cache/hosted/pub.dev/syncfusion_flutter_core-29.1.41",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
+    },
+    {
       "name": "term_glyph",
       "rootUri": "file:///home/user/.pub-cache/hosted/pub.dev/term_glyph-1.2.2",
       "packageUri": "lib/",
@@ -158,7 +176,7 @@
       "languageVersion": "3.7"
     }
   ],
-  "generated": "2025-05-06T03:20:59.026718Z",
+  "generated": "2025-05-08T03:37:09.359880Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///home/user/flutter",

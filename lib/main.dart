@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Smart Home',
       home: const LoadingScreen(),
+      // home: const homePage(),
     );
   }
 }

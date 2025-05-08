@@ -9,10 +9,13 @@ class ControlScreen extends StatefulWidget {
 
 class _ControlScreenState extends State<ControlScreen> {
   final List<bool> _switchValues = List.generate(4, (_) => false);
-  final List<bool> _buttonStates = List.generate(6, (_) => false); // 6 botones ahora
+  final List<bool> _buttonStates = List.generate(
+    6,
+    (_) => false,
+  ); // 6 botones ahora
 
   final List<String> _buttonLabels = [
-    "Room1",
+    "Habitación 1",
     "Baño2",
     "Sala",
     "Cocina",
@@ -33,7 +36,7 @@ class _ControlScreenState extends State<ControlScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Control de Dispositivos")),
+      // appBar: AppBar(title: const Text("Control de Dispositivos")),
       body: Stack(
         children: [
           Positioned.fill(
@@ -64,9 +67,10 @@ class _ControlScreenState extends State<ControlScreen> {
                   ),
                 ),
                 Expanded(
-                  child: _selectedSegment == 'Luces'
-                      ? _buildButtonsColumn()
-                      : _buildSwitchesColumn(),
+                  child:
+                      _selectedSegment == 'Luces'
+                          ? _buildButtonsColumn()
+                          : _buildSwitchesColumn(),
                 ),
                 const SizedBox(height: 20),
                 SegmentedButton<String>(
@@ -80,6 +84,24 @@ class _ControlScreenState extends State<ControlScreen> {
                       _selectedSegment = newSelection.first;
                     });
                   },
+                  style: SegmentedButton.styleFrom(
+                    backgroundColor:
+                        Colors.grey[300], // Fondo de segmentos no seleccionados
+                    foregroundColor:
+                        Colors.black, // Texto de segmentos no seleccionados
+                    selectedBackgroundColor: const Color.fromARGB(
+                      255,
+                      58,
+                      43,
+                      224,
+                    ), // Fondo del segmento seleccionado
+                    selectedForegroundColor:
+                        Colors.white, // Texto del segmento seleccionado
+                    side: const BorderSide(
+                      color: Color.fromARGB(255, 68, 48, 250),
+                      width: 1,
+                    ), // Borde
+                  ),
                 ),
               ],
             ),
@@ -99,6 +121,7 @@ class _ControlScreenState extends State<ControlScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: SizedBox(
               width: 300,
+              // Ajusta la altura según sea necesario si el contenido del botón lo requiere
               height: 60,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
@@ -150,6 +173,11 @@ class _ControlScreenState extends State<ControlScreen> {
                     Switch(
                       value: _switchValues[index],
                       onChanged: (value) {
+                        // Aquí puedes agregar la lógica específica para cada sensor
+                        if (index == 0) {
+                          /* Lógica para sensor de temperatura */
+                        }
+                        // ... y así sucesivamente para los otros sensores
                         setState(() {
                           _switchValues[index] = value;
                           _displayMessage =
