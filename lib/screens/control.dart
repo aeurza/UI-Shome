@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 
 class ControlScreen extends StatefulWidget {
   const ControlScreen({Key? key}) : super(key: key);
@@ -9,39 +11,130 @@ class ControlScreen extends StatefulWidget {
 
 class _ControlScreenState extends State<ControlScreen> {
   final List<bool> _switchValues = List.generate(4, (_) => false);
-  final List<bool> _buttonStates = List.generate(
-    6,
-    (_) => false,
-  ); // 6 botones ahora
+  final List<bool> _buttonStates = List.generate(6, (_) => false);
+  String _displayMessage = "Conectando al broker MQTT...";
+  String _selectedSegment = 'Luces';
+  bool _mqttConnected = false;
+
+  // Configuración MQTT
+  late MqttServerClient _mqttClient;
+  final String _mqttBroker = '192.168.1.100'; // Cambiar por tu IP
+  final int _mqttPort = 1883;
+
+  // Temas MQTT
+  final List<String> _buttonTopics = [
+    "casa/habitacion1/luz",
+    "casa/bano2/luz",
+    "casa/sala/luz",
+    "casa/cocina/luz",
+    "casa/bano_visitas/luz",
+    "casa/deposito/luz",
+  ];
+
+  final List<String> _switchTopics = [
+    "casa/sensores/temperatura",
+    "casa/sensores/humedad",
+    "casa/sensores/pir",
+    "casa/sensores/gas",
+  ];
 
   final List<String> _buttonLabels = [
     "Habitación 1",
-    "Baño2",
+    "Baño 2",
     "Sala",
     "Cocina",
     "Baño de visitas",
-    "Deposito", // Nuevo botón
+    "Depósito",
   ];
 
   final List<String> _switchLabels = [
     "Sensor de temperatura",
     "Sensor de humedad",
     "Sensor PIR",
-    "Gas",
+    "Sensor de Gas",
   ];
 
-  String _displayMessage = "";
-  String _selectedSegment = 'Luces';
+  @override
+  void initState() {
+    super.initState();
+    _initMqttConnection();
+  }
+
+  Future<void> _initMqttConnection() async {
+    _mqttClient = MqttServerClient(
+      _mqttBroker,
+      'flutter_client_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    _mqttClient.port = _mqttPort;
+    _mqttClient.keepAlivePeriod = 30;
+    _mqttClient.onDisconnected = _onDisconnected;
+
+    final connMessage =
+        MqttConnectMessage().withWillQos(MqttQos.atLeastOnce).startClean();
+
+    try {
+      await _mqttClient.connect();
+      setState(() {
+        _mqttConnected = true;
+        _displayMessage = "Conectado al broker MQTT";
+      });
+    } catch (e) {
+      setState(() {
+        _mqttConnected = false;
+        _displayMessage = "Error de conexión: $e";
+      });
+    }
+
+    if (_mqttConnected) {
+      _mqttClient.updates!.listen((
+        List<MqttReceivedMessage<MqttMessage>> messages,
+      ) {
+        final MqttPublishMessage recv =
+            messages[0].payload as MqttPublishMessage;
+        final payload = MqttPublishPayload.bytesToStringAsString(
+          recv.payload.message,
+        );
+        _handleIncomingMessage(messages[0].topic, payload);
+      });
+    }
+  }
+
+  void _onDisconnected() {
+    if (mounted) {
+      setState(() {
+        _mqttConnected = false;
+        _displayMessage = "Desconectado del broker";
+      });
+    }
+  }
+
+  void _handleIncomingMessage(String topic, String payload) {
+    print('Mensaje recibido: $topic - $payload');
+    // Aquí puedes agregar lógica para actualizar la UI con mensajes entrantes
+  }
+
+  void _publishMessage(String topic, String message) {
+    if (!_mqttConnected) return;
+
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(message);
+    _mqttClient.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+  }
+
+  @override
+  void dispose() {
+    _mqttClient.disconnect();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text("Control de Dispositivos")),
       body: Stack(
         children: [
           Positioned.fill(
             child: Opacity(
-              opacity: 0.5,
+              opacity: 0.3,
               child: Image.asset('assets/images/bg.jpg', fit: BoxFit.cover),
             ),
           ),
@@ -49,60 +142,16 @@ class _ControlScreenState extends State<ControlScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Card(
-                  margin: const EdgeInsets.only(bottom: 20),
-                  child: Container(
-                    width: double.infinity,
-                    height: 100,
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        _displayMessage.isEmpty
-                            ? 'Tarjeta de Display'
-                            : _displayMessage,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                ),
+                _buildStatusRow(),
+                const SizedBox(height: 20),
                 Expanded(
                   child:
                       _selectedSegment == 'Luces'
-                          ? _buildButtonsColumn()
-                          : _buildSwitchesColumn(),
+                          ? _buildButtonsGrid()
+                          : _buildSensorsList(),
                 ),
                 const SizedBox(height: 20),
-                SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'Luces', label: Text('Luces')),
-                    ButtonSegment(value: 'Sensores', label: Text('Sensores')),
-                  ],
-                  selected: {_selectedSegment},
-                  onSelectionChanged: (newSelection) {
-                    setState(() {
-                      _selectedSegment = newSelection.first;
-                    });
-                  },
-                  style: SegmentedButton.styleFrom(
-                    backgroundColor:
-                        Colors.grey[300], // Fondo de segmentos no seleccionados
-                    foregroundColor:
-                        Colors.black, // Texto de segmentos no seleccionados
-                    selectedBackgroundColor: const Color.fromARGB(
-                      255,
-                      58,
-                      43,
-                      224,
-                    ), // Fondo del segmento seleccionado
-                    selectedForegroundColor:
-                        Colors.white, // Texto del segmento seleccionado
-                    side: const BorderSide(
-                      color: Color.fromARGB(255, 68, 48, 250),
-                      width: 1,
-                    ), // Borde
-                  ),
-                ),
+                _buildSegmentControl(),
               ],
             ),
           ),
@@ -111,86 +160,124 @@ class _ControlScreenState extends State<ControlScreen> {
     );
   }
 
-  Widget _buildButtonsColumn() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(
-          _buttonLabels.length,
-          (index) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: SizedBox(
-              width: 300,
-              // Ajusta la altura según sea necesario si el contenido del botón lo requiere
-              height: 60,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _buttonStates[index] ? Colors.green : Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _buttonStates[index] = !_buttonStates[index];
-                    _displayMessage =
-                        'Se ${_buttonStates[index] ? 'encendió' : 'apagó'} la luz de ${_buttonLabels[index]}';
-                  });
-                },
-                icon: Icon(
-                  _buttonStates[index]
-                      ? Icons.lightbulb
-                      : Icons.lightbulb_outline,
-                  color: _buttonStates[index] ? Colors.yellow : Colors.white,
-                ),
-                label: Text(
-                  _buttonLabels[index],
-                  style: const TextStyle(fontSize: 18),
-                ),
+  Widget _buildStatusRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(Icons.computer, color: Theme.of(context).primaryColor),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _displayMessage,
+                      style: const TextStyle(fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      ),
+        const SizedBox(width: 10),
+        Container(
+          margin: const EdgeInsets.only(top: 16),
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: _mqttConnected ? Colors.green : Colors.red,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildSwitchesColumn() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: List.generate(
-          _switchLabels.length,
-          (index) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Card(
-              elevation: 5,
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(_switchLabels[index]),
-                    const SizedBox(width: 10),
-                    Switch(
-                      value: _switchValues[index],
-                      onChanged: (value) {
-                        // Aquí puedes agregar la lógica específica para cada sensor
-                        if (index == 0) {
-                          /* Lógica para sensor de temperatura */
-                        }
-                        // ... y así sucesivamente para los otros sensores
-                        setState(() {
-                          _switchValues[index] = value;
-                          _displayMessage =
-                              '${_switchLabels[index]} ${value ? 'activado' : 'desactivado'}';
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
+  Widget _buildButtonsGrid() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 2.5,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+      ),
+      itemCount: _buttonLabels.length,
+      itemBuilder:
+          (context, index) => ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _buttonStates[index] ? Colors.green : null,
+              foregroundColor: _buttonStates[index] ? Colors.white : null,
+            ),
+            onPressed: () => _handleButtonPress(index),
+            icon: Icon(
+              _buttonStates[index] ? Icons.lightbulb : Icons.lightbulb_outline,
+              color: _buttonStates[index] ? Colors.yellow : null,
+            ),
+            label: Text(_buttonLabels[index]),
+          ),
+    );
+  }
+
+  void _handleButtonPress(int index) {
+    setState(() {
+      _buttonStates[index] = !_buttonStates[index];
+      _displayMessage =
+          '${_buttonLabels[index]} ${_buttonStates[index] ? 'ON' : 'OFF'}';
+    });
+    _publishMessage(_buttonTopics[index], _buttonStates[index] ? 'ON' : 'OFF');
+  }
+
+  Widget _buildSensorsList() {
+    return ListView.builder(
+      itemCount: _switchLabels.length,
+      itemBuilder:
+          (context, index) => Card(
+            margin: const EdgeInsets.symmetric(vertical: 5),
+            child: SwitchListTile(
+              title: Text(_switchLabels[index]),
+              value: _switchValues[index],
+              onChanged: (value) => _handleSwitchChange(index, value),
             ),
           ),
+    );
+  }
+
+  void _handleSwitchChange(int index, bool value) {
+    setState(() {
+      _switchValues[index] = value;
+      _displayMessage =
+          '${_switchLabels[index]} ${value ? 'ACTIVADO' : 'DESACTIVADO'}';
+    });
+    _publishMessage(_switchTopics[index], value ? 'ACTIVADO' : 'DESACTIVADO');
+  }
+
+  Widget _buildSegmentControl() {
+    return SegmentedButton<String>(
+      segments: const [
+        ButtonSegment(
+          value: 'Luces',
+          label: Text('Luces'),
+          icon: Icon(Icons.lightbulb_outline),
         ),
+        ButtonSegment(
+          value: 'Sensores',
+          label: Text('Sensores'),
+          icon: Icon(Icons.sensors),
+        ),
+      ],
+      selected: {_selectedSegment},
+      onSelectionChanged: (Set<String> newSelection) {
+        setState(() => _selectedSegment = newSelection.first);
+      },
+      style: SegmentedButton.styleFrom(
+        backgroundColor: Colors.grey[200],
+        selectedBackgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }
